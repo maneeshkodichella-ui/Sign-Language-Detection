@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Login - SignDetect{% endblock %}
+
+{% block extra_css %}
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<style>
+  .input-wrapper {
+    position: relative;
+  }
+
+  .input-wrapper input {
+    padding-left: 45px;
+  }
+
+  .input-wrapper .input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+  }
+
+  .password-toggle {
+    position: relative;
+  }
+  
+  .password-toggle input {
+    padding-left: 45px;
+    padding-right: 45px;
+  }
+  
+  .password-toggle .input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+  }
+  
+  .password-toggle-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    user-select: none;
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+  }
+  
+  .password-toggle-icon:hover {
+    color: var(--primary-color);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 480px;">
+  <div class="card">
+    <div class="card-header"> Sign In</div>
+    <div class="card-body">
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <div class="input-wrapper">
+            <input class="form-control" type="text" name="username" id="username" required />
+            <i class='bx bxs-user input-icon'></i>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <div class="password-toggle">
+            <input class="form-control" type="password" name="password" id="loginPassword" required />
+            <i class='bx bxs-lock-alt input-icon'></i>
+            <i class='bx bx-hide password-toggle-icon' id="togglePassword"></i>
+          </div>
+        </div>
+        <button class="btn btn-primary w-100" type="submit">Login</button>
+      </form>
+      <div class="mt-3 text-center">
+        <a href="{{ url_for('auth.register') }}" style="color: var(--primary-color); text-decoration: none;">Don't have an account? Register</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Toggle Password Visibility
+  const togglePassword = document.getElementById('togglePassword');
+  const passwordInput = document.getElementById('loginPassword');
+
+  if (togglePassword && passwordInput) {
+    togglePassword.addEventListener('click', function() {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      
+      // Toggle icon
+      this.classList.toggle('bx-hide');
+      this.classList.toggle('bx-show');
+    });
+  }
+</script>
+{% endblock %}

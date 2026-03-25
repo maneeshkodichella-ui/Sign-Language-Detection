@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}About - SignDetect{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="card">
+    <div class="card-header">📖 About SignDetect</div>
+    <div class="card-body">
+      <h2 style="background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700; margin-bottom: 1.5rem;">Real-Time Sign Language Detection</h2>
+      <p style="color: var(--text-secondary); line-height: 1.8; font-size: 1.05rem;">
+        SignDetect is an advanced web application that leverages cutting-edge computer vision and machine learning technologies to detect American Sign Language (ASL) gestures in real-time. Using your webcam, the system can recognize hand signs and convert them into readable text, making communication more accessible.
+      </p>
+
+      <h2 style="background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700; margin-bottom: 1.5rem; margin-top: 2rem;">Key Features</h2>
+      <div class="row">
+        <div class="col-md-6">
+          <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)); border: 2px solid var(--primary-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+            <h5 style="color: var(--primary-color); font-weight: 700; margin-bottom: 0.75rem;">🎥 Live Detection</h5>
+            <p style="color: var(--text-secondary); margin: 0;">Real-time webcam feed with instant sign recognition and confidence scores.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)); border: 2px solid var(--primary-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+            <h5 style="color: var(--primary-color); font-weight: 700; margin-bottom: 0.75rem;">📝 Sentence Builder</h5>
+            <p style="color: var(--text-secondary); margin: 0;">Build complete sentences by stringing together detected signs with spacing controls.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)); border: 2px solid var(--primary-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+            <h5 style="color: var(--primary-color); font-weight: 700; margin-bottom: 0.75rem;">🔊 Text-to-Speech</h5>
+            <p style="color: var(--text-secondary); margin: 0;">Convert your signed sentences into spoken words with built-in speech synthesis.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)); border: 2px solid var(--primary-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+            <h5 style="color: var(--primary-color); font-weight: 700; margin-bottom: 0.75rem;">📊 Detection History</h5>
+            <p style="color: var(--text-secondary); margin: 0;">Track all your detections with comprehensive history and statistics.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)); border: 2px solid var(--primary-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+            <h5 style="color: var(--primary-color); font-weight: 700; margin-bottom: 0.75rem;">🌙 Dark Mode</h5>
+            <p style="color: var(--text-secondary); margin: 0;">Eye-friendly dark theme that persists across sessions.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)); border: 2px solid var(--primary-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+            <h5 style="color: var(--primary-color); font-weight: 700; margin-bottom: 0.75rem;">👤 User Accounts</h5>
+            <p style="color: var(--text-secondary); margin: 0;">Create an account to save your detection history and track progress.</p>
+          </div>
+        </div>
+      </div>
+
+      <h2 style="background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700; margin-bottom: 1.5rem; margin-top: 2rem;">Technology Stack</h2>
+      <p style="color: var(--text-secondary); line-height: 1.8; font-size: 1.05rem;">SignDetect is built with modern, professional technologies:</p>
+      <div class="text-center my-4">
+        <span style="display: inline-block; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 0.5rem 1rem; border-radius: 8px; margin: 0.25rem; font-weight: 600; font-size: 0.9rem;">🐍 Flask</span>
+        <span style="display: inline-block; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 0.5rem 1rem; border-radius: 8px; margin: 0.25rem; font-weight: 600; font-size: 0.9rem;">🗄️ SQLAlchemy</span>
+        <span style="display: inline-block; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 0.5rem 1rem; border-radius: 8px; margin: 0.25rem; font-weight: 600; font-size: 0.9rem;">🔐 Flask-Login</span>
+        <span style="display: inline-block; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 0.5rem 1rem; border-radius: 8px; margin: 0.25rem; font-weight: 600; font-size: 0.9rem;">👁️ OpenCV</span>
+        <span style="display: inline-block; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 0.5rem 1rem; border-radius: 8px; margin: 0.25rem; font-weight: 600; font-size: 0.9rem;">✋ Mediapipe</span>
+        <span style="display: inline-block; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 0.5rem 1rem; border-radius: 8px; margin: 0.25rem; font-weight: 600; font-size: 0.9rem;">🧠 TensorFlow/Keras</span>
+        <span style="display: inline-block; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 0.5rem 1rem; border-radius: 8px; margin: 0.25rem; font-weight: 600; font-size: 0.9rem;">🎨 Bootstrap 5</span>
+        <span style="display: inline-block; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 0.5rem 1rem; border-radius: 8px; margin: 0.25rem; font-weight: 600; font-size: 0.9rem;">⚡ JavaScript ES6</span>
+      </div>
+
+      <h2 style="background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700; margin-bottom: 1.5rem; margin-top: 2rem;">How It Works</h2>
+      <ol style="color: var(--text-secondary); line-height: 2;">
+        <li><strong>Hand Detection:</strong> Mediapipe Hands detects and tracks your hand landmarks in real-time.</li>
+        <li><strong>Feature Extraction:</strong> The system extracts 21 key hand landmark coordinates.</li>
+        <li><strong>Classification:</strong> A trained Keras neural network model classifies the hand gesture into ASL letters.</li>
+        <li><strong>Live Streaming:</strong> Video frames are streamed via MJPEG for smooth, real-time viewing.</li>
+        <li><strong>Sentence Building:</strong> Detected signs are automatically concatenated to form words and sentences.</li>
+      </ol>
+
+      <p class="mt-4" style="color: var(--text-secondary); line-height: 1.8; font-size: 1.05rem;">
+        Whether you're learning ASL, developing accessibility tools, or just interested in computer vision, SignDetect provides a powerful, user-friendly platform for sign language detection.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

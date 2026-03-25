@@ -1,0 +1,812 @@
+{% extends "base.html" %}
+
+{% block title %}Learn ASL - SignDetect{% endblock %}
+
+{% block extra_css %}
+<style>
+  .learn-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 2rem;
+    padding: 2rem 0;
+  }
+
+  .learn-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .learn-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+  }
+
+  .nav-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 12px 30px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    border-radius: 30px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .tab-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .tab-btn.active {
+    background: white;
+    color: var(--primary-color);
+    font-weight: bold;
+  }
+
+  .gesture-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+  }
+
+  .gesture-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px var(--card-shadow);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .gesture-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+  }
+
+  .gesture-image {
+    width: 100%;
+    height: 250px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gesture-image canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .letter-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: white;
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: bold;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+
+  .gesture-content {
+    padding: 25px;
+  }
+
+  .gesture-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+  }
+
+  .gesture-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+  }
+
+  .difficulty {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+
+  .difficulty.easy {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .difficulty.medium {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .difficulty.hard {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  .practice-section {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 30px;
+    margin-top: 30px;
+    box-shadow: 0 10px 30px var(--card-shadow);
+  }
+
+  .practice-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 2rem;
+  }
+
+  .practice-section p {
+    color: var(--text-secondary);
+  }
+
+  .practice-btn {
+    padding: 15px 40px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+
+  .practice-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+  }
+
+  .tips-section {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 30px;
+    margin-top: 30px;
+    box-shadow: 0 10px 30px var(--card-shadow);
+  }
+
+  .tips-section h3 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+  }
+
+  .tips-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .tips-list li {
+    padding: 12px 0;
+    padding-left: 30px;
+    position: relative;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .tips-list li::before {
+    content: '👉';
+    position: absolute;
+    left: 0;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  .modal.active {
+    display: flex;
+  }
+
+  .modal-content {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 800px;
+    width: 90%;
+    position: relative;
+    animation: slideIn 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(-50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.3s;
+    z-index: 10;
+  }
+
+  .modal-close:hover {
+    color: var(--text-primary);
+  }
+
+  .modal-image {
+    width: 100%;
+    height: 400px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .modal-image canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .modal-details h3 {
+    color: var(--primary-color);
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+
+  .modal-details p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+
+  .modal-steps {
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 15px;
+  }
+
+  .modal-steps ol {
+    padding-left: 25px;
+    color: var(--text-secondary);
+  }
+
+  .modal-steps li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 768px) {
+    .learn-header h1 {
+      font-size: 2rem;
+    }
+
+    .gesture-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+
+    .modal-content {
+      padding: 20px;
+    }
+
+    .modal-image {
+      height: 300px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="learn-header">
+    <h1>🤟 Complete ASL Alphabet Guide</h1>
+    <p>Learn all 26 American Sign Language letters with visual demonstrations</p>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" data-category="all">All Letters</button>
+    <button class="tab-btn" data-category="easy">Easy (A-I)</button>
+    <button class="tab-btn" data-category="medium">Medium (J-R)</button>
+    <button class="tab-btn" data-category="hard">Advanced (S-Z)</button>
+  </div>
+
+  <div class="gesture-grid" id="gestureGrid">
+    <!-- Gestures will be populated by JavaScript -->
+  </div>
+
+  <div class="practice-section">
+    <h2>Ready to Practice?</h2>
+    <p style="margin-bottom: 20px;">Test your skills with our real-time hand gesture recognition system!</p>
+    <button class="practice-btn" onclick="window.location.href='{{ url_for('main.home') }}'">🏠 Back to Home</button>
+    <button class="practice-btn" onclick="window.location.href='{{ url_for('main.detect') }}'">🎯 Start Practice Session</button>
+  </div>
+
+  <div class="tips-section">
+    <h3>💡 Learning Tips</h3>
+    <ul class="tips-list">
+      <li>Practice each gesture in front of a mirror to ensure correct hand positioning</li>
+      <li>Start with easier letters (A, B, C) before moving to complex ones</li>
+      <li>Letters J and Z require motion - practice the directional movements</li>
+      <li>Ensure good lighting when using the camera detection system</li>
+      <li>Keep your hand centered in the camera frame</li>
+      <li>Hold each gesture steady for 2-3 seconds for accurate detection</li>
+      <li>Practice daily for 10-15 minutes to build muscle memory</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Modal for gesture details -->
+<div class="modal" id="gestureModal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeModal()">&times;</span>
+    <div class="modal-image" id="modalImage"></div>
+    <div class="modal-details" id="modalDetails"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const gestures = [
+    { letter: 'A', name: 'Letter A', description: 'Closed fist with thumb on side', difficulty: 'easy', category: 'easy', steps: ['Close all four fingers into your palm', 'Tuck your thumb against the side of your index finger', 'Keep your fist closed and firm'] },
+    { letter: 'B', name: 'Letter B', description: 'Four fingers extended together, thumb across palm', difficulty: 'easy', category: 'easy', steps: ['Hold all four fingers straight up and together', 'Keep fingers close to each other', 'Tuck your thumb across your palm'] },
+    { letter: 'C', name: 'Letter C', description: 'Curved hand forming C shape', difficulty: 'easy', category: 'easy', steps: ['Curve all your fingers and thumb', 'Create a C shape like holding a can', 'Keep fingers slightly apart'] },
+    { letter: 'D', name: 'Letter D', description: 'Index finger up, other fingers form circle with thumb', difficulty: 'medium', category: 'easy', steps: ['Point your index finger straight up', 'Touch your thumb to your middle, ring, and pinky fingers', 'Form a circle with thumb and three fingers'] },
+    { letter: 'E', name: 'Letter E', description: 'All fingers curled tightly into palm', difficulty: 'easy', category: 'easy', steps: ['Curl all four fingers tightly toward your palm', 'Make sure fingertips touch your palm', 'Rest your thumb on top of your fingers'] },
+    { letter: 'F', name: 'Letter F', description: 'Thumb and index form circle, three fingers extended', difficulty: 'medium', category: 'easy', steps: ['Form a circle by touching thumb tip to index fingertip', 'Extend your middle, ring, and pinky fingers upward', 'Keep the three fingers straight and separated'] },
+    { letter: 'G', name: 'Letter G', description: 'Index finger and thumb point horizontally', difficulty: 'medium', category: 'easy', steps: ['Extend index finger and thumb horizontally', 'Point them parallel to the ground', 'Keep other fingers closed in fist'] },
+    { letter: 'H', name: 'Letter H', description: 'Index and middle fingers extended horizontally together', difficulty: 'medium', category: 'easy', steps: ['Extend index and middle fingers together', 'Point them horizontally to the side', 'Keep ring and pinky closed with thumb'] },
+    { letter: 'I', name: 'Letter I', description: 'Only pinky finger extended upward', difficulty: 'easy', category: 'easy', steps: ['Make a fist with all fingers closed', 'Extend only your pinky finger straight up', 'Keep other fingers tucked in'] },
+    { letter: 'J', name: 'Letter J', description: 'Pinky extended, draw J shape in air (motion letter)', difficulty: 'hard', category: 'medium', steps: ['Start with letter I (pinky extended)', 'Draw a J shape in the air by moving pinky down and curving back', 'Motion letters require movement'] },
+    { letter: 'K', name: 'Letter K', description: 'Index and middle up, thumb touches middle finger', difficulty: 'hard', category: 'medium', steps: ['Extend index and middle fingers upward in V shape', 'Place thumb between the two fingers', 'Keep ring and pinky closed'] },
+    { letter: 'L', name: 'Letter L', description: 'Thumb and index extended forming L shape', difficulty: 'easy', category: 'medium', steps: ['Extend your thumb horizontally', 'Extend your index finger vertically', 'Form a 90-degree angle (L shape)', 'Keep other fingers closed'] },
+    { letter: 'M', name: 'Letter M', description: 'Three fingers over thumb, pinky closed', difficulty: 'medium', category: 'medium', steps: ['Tuck thumb under your first three fingers', 'Drape index, middle, and ring fingers over thumb', 'Keep pinky closed'] },
+    { letter: 'N', name: 'Letter N', description: 'Two fingers over thumb, other fingers closed', difficulty: 'medium', category: 'medium', steps: ['Tuck thumb under your index and middle fingers', 'Drape these two fingers over thumb', 'Keep ring and pinky closed'] },
+    { letter: 'O', name: 'Letter O', description: 'All fingertips form circle with thumb', difficulty: 'easy', category: 'medium', steps: ['Bring all fingertips together', 'Touch thumb tip to fingertips', 'Form a circle or oval shape'] },
+    { letter: 'P', name: 'Letter P', description: 'Like K but pointing downward', difficulty: 'hard', category: 'medium', steps: ['Form K shape (index and middle up with thumb)', 'Rotate hand so fingers point downward', 'Keep same finger configuration'] },
+    { letter: 'Q', name: 'Letter Q', description: 'Like G but pointing downward', difficulty: 'medium', category: 'medium', steps: ['Form G shape (index and thumb)', 'Point fingers downward', 'Maintain horizontal orientation of fingers'] },
+    { letter: 'R', name: 'Letter R', description: 'Index and middle crossed', difficulty: 'medium', category: 'medium', steps: ['Extend index and middle fingers', 'Cross middle finger over index finger', 'Keep other fingers closed'] },
+    { letter: 'S', name: 'Letter S', description: 'Closed fist with thumb over fingers', difficulty: 'easy', category: 'hard', steps: ['Make a tight fist', 'Place thumb across your fingers (not on side)', 'Keep all fingers closed'] },
+    { letter: 'T', name: 'Letter T', description: 'Thumb between index and middle finger', difficulty: 'medium', category: 'hard', steps: ['Make a fist', 'Tuck thumb between index and middle finger', 'Thumb tip should poke out slightly'] },
+    { letter: 'U', name: 'Letter U', description: 'Index and middle fingers up together', difficulty: 'easy', category: 'hard', steps: ['Extend index and middle fingers upward', 'Keep them together (touching)', 'Close other fingers with thumb'] },
+    { letter: 'V', name: 'Letter V', description: 'Index and middle fingers separated in V', difficulty: 'easy', category: 'hard', steps: ['Extend your index and middle fingers', 'Separate them to form a V shape', 'Keep ring and pinky fingers closed with thumb'] },
+    { letter: 'W', name: 'Letter W', description: 'Three fingers (index, middle, ring) extended and separated', difficulty: 'medium', category: 'hard', steps: ['Extend index, middle, and ring fingers', 'Spread them apart to show three distinct fingers', 'Keep pinky and thumb closed'] },
+    { letter: 'X', name: 'Letter X', description: 'Index finger bent into hook shape', difficulty: 'medium', category: 'hard', steps: ['Extend index finger but curl it into a hook', 'Bend at the first knuckle to create curve', 'Keep other fingers closed in fist'] },
+    { letter: 'Y', name: 'Letter Y', description: 'Thumb and pinky extended outward', difficulty: 'medium', category: 'hard', steps: ['Make a fist with middle three fingers', 'Extend your thumb outward', 'Extend your pinky finger upward', 'Create a Y shape'] },
+    { letter: 'Z', name: 'Letter Z', description: 'Index finger draws Z shape in air (motion letter)', difficulty: 'hard', category: 'hard', steps: ['Extend index finger', 'Draw a Z pattern in the air', 'Move finger left, diagonal down-right, then right', 'Motion letters require movement'] }
+  ];
+
+  // Drawing functions remain the same
+  function drawHandGesture(canvas, letter) {
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width = 600;
+    const height = canvas.height = 600;
+    
+    ctx.clearRect(0, 0, width, height);
+    
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, '#667eea');
+    gradient.addColorStop(1, '#764ba2');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+    
+    ctx.save();
+    ctx.translate(width / 2, height / 2);
+    
+    ctx.strokeStyle = '#ffffff';
+    ctx.fillStyle = '#ffd8b2';
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    ctx.beginPath();
+    ctx.ellipse(0, 20, 80, 100, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    
+    const drawFunctions = {
+      'A': drawLetterA, 'B': drawLetterB, 'C': drawLetterC, 'D': drawLetterD,
+      'E': drawLetterE, 'F': drawLetterF, 'G': drawLetterG, 'H': drawLetterH,
+      'I': drawLetterI, 'J': drawLetterJ, 'K': drawLetterK, 'L': drawLetterL,
+      'M': drawLetterM, 'N': drawLetterN, 'O': drawLetterO, 'P': drawLetterP,
+      'Q': drawLetterQ, 'R': drawLetterR, 'S': drawLetterS, 'T': drawLetterT,
+      'U': drawLetterU, 'V': drawLetterV, 'W': drawLetterW, 'X': drawLetterX,
+      'Y': drawLetterY, 'Z': drawLetterZ
+    };
+    
+    const drawFunc = drawFunctions[letter] || drawDefaultHand;
+    drawFunc(ctx);
+    
+    ctx.restore();
+  }
+
+  function drawLetterA(ctx) {
+    drawFinger(ctx, -60, 0, -60, -60, 15);
+    drawFinger(ctx, -20, 0, -20, -70, 15);
+    drawFinger(ctx, 20, 0, 20, -65, 15);
+    drawFinger(ctx, 60, 0, 60, -50, 12);
+    drawThumb(ctx, -90, 30, -100, 10, 18, true);
+  }
+
+  function drawLetterB(ctx) {
+    drawFinger(ctx, -60, 0, -60, -130, 18);
+    drawFinger(ctx, -20, 0, -20, -135, 18);
+    drawFinger(ctx, 20, 0, 20, -130, 18);
+    drawFinger(ctx, 60, 0, 60, -120, 15);
+    drawThumb(ctx, -80, 40, -70, 60, 18, false);
+  }
+
+  function drawLetterC(ctx) {
+    ctx.beginPath();
+    ctx.arc(0, 0, 100, -Math.PI * 0.7, Math.PI * 0.7);
+    ctx.lineWidth = 35;
+    ctx.stroke();
+  }
+
+  function drawLetterD(ctx) {
+    drawFinger(ctx, -30, 0, -30, -130, 20);
+    ctx.beginPath();
+    ctx.arc(10, -20, 40, 0, Math.PI * 2);
+    ctx.lineWidth = 20;
+    ctx.stroke();
+  }
+
+  function drawLetterE(ctx) {
+    drawFinger(ctx, -50, 0, -50, -40, 18);
+    drawFinger(ctx, -15, 0, -15, -45, 18);
+    drawFinger(ctx, 20, 0, 20, -45, 18);
+    drawFinger(ctx, 55, 0, 55, -35, 15);
+    drawThumb(ctx, -80, 30, -60, -10, 20, true);
+  }
+
+  function drawLetterF(ctx) {
+    ctx.beginPath();
+    ctx.arc(-30, -40, 25, 0, Math.PI * 2);
+    ctx.lineWidth = 15;
+    ctx.stroke();
+    drawFinger(ctx, 0, 0, 0, -120, 18);
+    drawFinger(ctx, 35, 0, 35, -115, 18);
+    drawFinger(ctx, 65, 0, 65, -105, 15);
+  }
+
+  function drawLetterG(ctx) {
+    drawFinger(ctx, -40, 0, -120, 0, 20);
+    drawThumb(ctx, -60, 40, -100, -30, 20, true);
+    drawFinger(ctx, 0, 0, 0, -40, 15);
+    drawFinger(ctx, 30, 0, 30, -40, 15);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+  }
+
+  function drawLetterH(ctx) {
+    drawFinger(ctx, -30, 0, -120, -10, 18);
+    drawFinger(ctx, -5, 0, -95, -5, 18);
+    drawFinger(ctx, 25, 0, 25, -40, 15);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+    drawThumb(ctx, -70, 30, -60, 10, 18, true);
+  }
+
+  function drawLetterI(ctx) {
+    drawFinger(ctx, -50, 0, -50, -50, 18);
+    drawFinger(ctx, -15, 0, -15, -55, 18);
+    drawFinger(ctx, 20, 0, 20, -50, 18);
+    drawFinger(ctx, 60, 0, 60, -120, 15);
+    drawThumb(ctx, -80, 30, -70, 10, 18, true);
+  }
+
+  function drawLetterJ(ctx) {
+    drawFinger(ctx, -50, 0, -50, -50, 18);
+    drawFinger(ctx, -15, 0, -15, -55, 18);
+    drawFinger(ctx, 20, 0, 20, -50, 18);
+    ctx.beginPath();
+    ctx.arc(65, -80, 40, -Math.PI/2, Math.PI/2);
+    ctx.lineWidth = 15;
+    ctx.stroke();
+    drawThumb(ctx, -80, 30, -70, 10, 18, true);
+  }
+
+  function drawLetterK(ctx) {
+    drawFinger(ctx, -40, 0, -60, -120, 20);
+    drawFinger(ctx, -10, 0, 10, -120, 20);
+    drawThumb(ctx, -60, 30, -40, -60, 18, true);
+    drawFinger(ctx, 30, 0, 30, -40, 15);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+  }
+
+  function drawLetterL(ctx) {
+    drawThumb(ctx, -90, 40, -150, 40, 20, true);
+    drawFinger(ctx, -40, 0, -40, -130, 20);
+    drawFinger(ctx, 0, 0, 0, -40, 15);
+    drawFinger(ctx, 30, 0, 30, -40, 15);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+  }
+
+  function drawLetterM(ctx) {
+    drawThumb(ctx, -80, 40, -60, -20, 18, false);
+    drawFinger(ctx, -50, 0, -50, -30, 18);
+    drawFinger(ctx, -15, 0, -15, -35, 18);
+    drawFinger(ctx, 20, 0, 20, -30, 18);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+  }
+
+  function drawLetterN(ctx) {
+    drawThumb(ctx, -80, 40, -60, -20, 18, false);
+    drawFinger(ctx, -40, 0, -40, -30, 18);
+    drawFinger(ctx, -5, 0, -5, -35, 18);
+    drawFinger(ctx, 30, 0, 30, -40, 15);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+  }
+
+  function drawLetterO(ctx) {
+    ctx.beginPath();
+    ctx.arc(0, -40, 50, 0, Math.PI * 2);
+    ctx.lineWidth = 25;
+    ctx.stroke();
+  }
+
+  function drawLetterP(ctx) {
+    drawFinger(ctx, -60, 0, -40, 80, 20);
+    drawFinger(ctx, -10, 0, 10, 80, 20);
+    drawThumb(ctx, -60, 30, -20, 40, 18, true);
+    drawFinger(ctx, 30, 0, 30, -40, 15);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+  }
+
+  function drawLetterQ(ctx) {
+    drawFinger(ctx, -40, 0, -20, 100, 20);
+    drawThumb(ctx, -60, 40, -40, 70, 20, true);
+    drawFinger(ctx, 0, 0, 0, -40, 15);
+    drawFinger(ctx, 30, 0, 30, -40, 15);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+  }
+
+  function drawLetterR(ctx) {
+    ctx.beginPath();
+    ctx.moveTo(-40, 0);
+    ctx.lineTo(-50, -120);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-10, 0);
+    ctx.lineTo(-30, -125);
+    ctx.stroke();
+    drawFinger(ctx, 25, 0, 25, -40, 15);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+    drawThumb(ctx, -80, 30, -70, 10, 18, true);
+  }
+
+  function drawLetterS(ctx) {
+    drawFinger(ctx, -50, 0, -50, -60, 18);
+    drawFinger(ctx, -15, 0, -15, -65, 18);
+    drawFinger(ctx, 20, 0, 20, -60, 18);
+    drawFinger(ctx, 55, 0, 55, -50, 15);
+    drawThumb(ctx, -80, 30, -50, -30, 20, true);
+  }
+
+  function drawLetterT(ctx) {
+    drawFinger(ctx, -45, 0, -45, -60, 18);
+    drawFinger(ctx, -10, 0, -10, -65, 18);
+    drawFinger(ctx, 25, 0, 25, -60, 18);
+    drawFinger(ctx, 60, 0, 60, -50, 15);
+    ctx.beginPath();
+    ctx.arc(-30, -30, 15, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawLetterU(ctx) {
+    drawFinger(ctx, -35, 0, -38, -120, 20);
+    drawFinger(ctx, -8, 0, -12, -120, 20);
+    drawFinger(ctx, 25, 0, 25, -40, 15);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+    drawThumb(ctx, -80, 30, -70, 10, 18, true);
+  }
+
+  function drawLetterV(ctx) {
+    drawFinger(ctx, -40, 0, -60, -120, 20);
+    drawFinger(ctx, -10, 0, 30, -120, 20);
+    drawFinger(ctx, 30, 0, 30, -40, 15);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+    drawThumb(ctx, -80, 30, -70, 10, 18, true);
+  }
+
+  function drawLetterW(ctx) {
+    drawFinger(ctx, -50, 0, -70, -120, 18);
+    drawFinger(ctx, -15, 0, -20, -130, 18);
+    drawFinger(ctx, 20, 0, 30, -125, 18);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+    drawThumb(ctx, -80, 30, -70, 10, 18, true);
+  }
+
+  function drawLetterX(ctx) {
+    ctx.beginPath();
+    ctx.arc(-30, -80, 30, Math.PI * 0.3, Math.PI * 1.2);
+    ctx.lineWidth = 20;
+    ctx.stroke();
+    drawFinger(ctx, -5, 0, -5, -50, 15);
+    drawFinger(ctx, 25, 0, 25, -45, 15);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+    drawThumb(ctx, -80, 30, -70, 10, 18, true);
+  }
+
+  function drawLetterY(ctx) {
+    drawThumb(ctx, -90, 40, -140, 20, 20, true);
+    drawFinger(ctx, -30, 0, -30, -40, 15);
+    drawFinger(ctx, 5, 0, 5, -45, 15);
+    drawFinger(ctx, 35, 0, 35, -40, 15);
+    drawFinger(ctx, 65, 0, 65, -130, 15);
+  }
+
+  function drawLetterZ(ctx) {
+    ctx.beginPath();
+    ctx.moveTo(-40, -100);
+    ctx.lineTo(10, -100);
+    ctx.lineTo(-40, -40);
+    ctx.lineTo(10, -40);
+    ctx.lineWidth = 20;
+    ctx.stroke();
+    
+    drawFinger(ctx, 0, 0, 0, -45, 15);
+    drawFinger(ctx, 30, 0, 30, -45, 15);
+    drawFinger(ctx, 60, 0, 60, -35, 12);
+    drawThumb(ctx, -80, 30, -70, 10, 18, true);
+    
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.font = 'bold 30px Arial';
+    ctx.fillText('(motion)', -40, 80);
+  }
+
+  function drawDefaultHand(ctx) {
+    drawFinger(ctx, -60, 0, -80, -110, 18);
+    drawFinger(ctx, -20, 0, -25, -130, 18);
+    drawFinger(ctx, 20, 0, 25, -125, 18);
+    drawFinger(ctx, 60, 0, 70, -105, 15);
+    drawThumb(ctx, -90, 40, -130, 20, 20, true);
+  }
+
+  function drawFinger(ctx, startX, startY, endX, endY, width) {
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.lineWidth = width;
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.arc(endX, endY, width / 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawThumb(ctx, startX, startY, endX, endY, width, extended) {
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    if (extended) {
+      ctx.quadraticCurveTo(startX - 20, startY - 10, endX, endY);
+    } else {
+      ctx.lineTo(endX, endY);
+    }
+    ctx.lineWidth = width;
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.arc(endX, endY, width / 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function renderGestures(category = 'all') {
+    const grid = document.getElementById('gestureGrid');
+    const filtered = category === 'all' ? gestures : gestures.filter(g => g.category === category);
+    
+    grid.innerHTML = filtered.map(gesture => `
+      <div class="gesture-card" onclick="showModal('${gesture.letter}')">
+        <div class="gesture-image">
+          <canvas id="canvas-${gesture.letter}" width="400" height="400"></canvas>
+          <div class="letter-badge">${gesture.letter}</div>
+        </div>
+        <div class="gesture-content">
+          <div class="gesture-title">${gesture.name}</div>
+          <div class="gesture-description">${gesture.description}</div>
+          <span class="difficulty ${gesture.difficulty}">${gesture.difficulty.toUpperCase()}</span>
+        </div>
+      </div>
+    `).join('');
+    
+    setTimeout(() => {
+      filtered.forEach(gesture => {
+        const canvas = document.getElementById(`canvas-${gesture.letter}`);
+        if (canvas) {
+          drawHandGesture(canvas, gesture.letter);
+        }
+      });
+    }, 100);
+  }
+
+  function showModal(letter) {
+    const gesture = gestures.find(g => g.letter === letter);
+    if (!gesture) return;
+
+    const modalImage = document.getElementById('modalImage');
+    modalImage.innerHTML = '<canvas id="modal-canvas" width="800" height="800"></canvas>';
+    
+    const stepsHTML = gesture.steps.map((step, i) => `<li>${step}</li>`).join('');
+    
+    document.getElementById('modalDetails').innerHTML = `
+      <h3>${gesture.name}</h3>
+      <p><strong>Description:</strong> ${gesture.description}</p>
+      <div class="modal-steps">
+        <h4>Step-by-Step Instructions:</h4>
+        <ol>${stepsHTML}</ol>
+      </div>
+      <h3>Difficulty Level</h3>
+      <p><span class="difficulty ${gesture.difficulty}">${gesture.difficulty.toUpperCase()}</span></p>
+    `;
+    
+    document.getElementById('gestureModal').classList.add('active');
+    
+    setTimeout(() => {
+      const canvas = document.getElementById('modal-canvas');
+      if (canvas) {
+        drawHandGesture(canvas, gesture.letter);
+      }
+    }, 100);
+  }
+
+  function closeModal() {
+    document.getElementById('gestureModal').classList.remove('active');
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      renderGestures(this.dataset.category);
+    });
+  });
+
+  document.getElementById('gestureModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  renderGestures();
+</script>
+{% endblock %}

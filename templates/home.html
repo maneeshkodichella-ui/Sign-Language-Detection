@@ -1,0 +1,546 @@
+{% extends "base.html" %}
+
+{% block title %}Practice Detection - SignDetect{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --brown-deep:   #3E2009;
+    --brown-dark:   #5C3317;
+    --brown-mid:    #8B6344;
+    --brown-warm:   #A0724F;
+    --brown-light:  #C49A6C;
+    --brown-pale:   #D4B896;
+    --brown-cream:  #EDD9C0;
+    --brown-blush:  #F5EDE3;
+    --brown-snow:   #FBF7F3;
+    --success:      #5A8A5E;
+    --danger:       #C0392B;
+    --warning:      #C87941;
+    --text-primary: #3E2009;
+    --text-secondary: #A0724F;
+    --border:       #EDD9C0;
+    --bg-card:      #FFFFFF;
+  }
+
+  /* ── Video container ─────────────────────────────── */
+  #videoContainer {
+    background: linear-gradient(160deg, #2C1505 0%, #1A0C02 100%);
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 8px 32px rgba(62,32,9,0.25),
+      inset 0 0 0 3px rgba(196,154,108,0.2);
+    min-height: 460px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--brown-cream);
+  }
+
+  #video {
+    border-radius: 10px;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* ── Spinner ─────────────────────────────────────── */
+  .spinner-border {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-width: 0.4rem;
+    color: var(--brown-light) !important;
+  }
+
+  /* ── Detected label ──────────────────────────────── */
+  #detectedLabel {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 5px;
+    color: var(--success);
+    background: linear-gradient(135deg, rgba(90,138,94,0.06), rgba(61,107,65,0.1));
+    border: 2.5px solid rgba(90,138,94,0.4);
+    padding: 1.4rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+    min-height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Stats card ──────────────────────────────────── */
+  .stats-card {
+    background: linear-gradient(135deg, var(--brown-blush), #FFFFFF);
+    border: 2px solid var(--brown-cream);
+    border-radius: 14px;
+    padding: 1.8rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .stats-card h3 {
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--brown-dark);
+  }
+
+  .stats-card p {
+    margin: 0.4rem 0 0;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.8rem;
+  }
+
+  /* ── Hands indicator ─────────────────────────────── */
+  .hands-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 1rem;
+    background: var(--brown-blush);
+    border-radius: 8px;
+    border: 1.5px solid var(--brown-cream);
+    margin-top: 0.75rem;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .hands-indicator.active {
+    background: rgba(90,138,94,0.08);
+    border-color: rgba(90,138,94,0.35);
+    color: var(--success);
+  }
+
+  .hand-icon { font-size: 1.3rem; }
+
+  /* ── Action buttons ──────────────────────────────── */
+  .action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+    margin-top: 1.25rem;
+  }
+
+  .btn-action {
+    padding: 0.8rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+
+  .btn-action:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* ── Status indicator ────────────────────────────── */
+  .status-indicator {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .status-active {
+    background-color: #7EC47F;
+    box-shadow: 0 0 10px rgba(126,196,127,0.7);
+    animation: pulse-glow 1.5s infinite;
+  }
+
+  .status-inactive {
+    background-color: var(--brown-pale);
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 6px rgba(126,196,127,0.6); opacity: 1; }
+    50%       { box-shadow: 0 0 16px rgba(126,196,127,0.9); opacity: 0.75; }
+  }
+
+  /* ── Help text ───────────────────────────────────── */
+  .help-text {
+    font-size: 0.87rem;
+    color: var(--text-secondary);
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--brown-blush);
+    border-radius: 8px;
+    border-left: 4px solid var(--brown-light);
+    line-height: 1.6;
+  }
+
+  /* ── Card overrides ──────────────────────────────── */
+  .card {
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(62,32,9,0.07);
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, var(--brown-dark), var(--brown-mid));
+    color: white;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    padding: 0.95rem 1.5rem;
+    border-radius: 16px 16px 0 0 !important;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+  }
+
+  .card-body {
+    background: #FFFFFF;
+  }
+
+  /* ── Feature badge ───────────────────────────────── */
+  .feature-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    color: var(--brown-cream);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 0.2rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-left: 0.6rem;
+    vertical-align: middle;
+  }
+
+  /* ── Toast alerts ────────────────────────────────── */
+  .alert-custom {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 460px;
+    border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(62,32,9,0.18);
+    animation: slideInRight 0.3s ease;
+    font-size: 0.9rem;
+  }
+
+  @keyframes slideInRight {
+    from { transform: translateX(380px); opacity: 0; }
+    to   { transform: translateX(0);     opacity: 1; }
+  }
+
+  /* ── Confidence display ──────────────────────────── */
+  .confidence-display {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* ── How to use box ──────────────────────────────── */
+  .how-to-use {
+    margin-top: 1.25rem;
+    padding: 1.1rem 1.25rem;
+    background: var(--brown-blush);
+    border-radius: 12px;
+    border: 1.5px dashed var(--brown-pale);
+  }
+
+  .how-to-use h6 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--brown-dark);
+    margin-bottom: 0.65rem;
+    font-size: 0.95rem;
+  }
+
+  .how-to-use ul {
+    font-size: 0.87rem;
+    color: var(--text-secondary);
+    line-height: 1.75;
+    padding-left: 1.1rem;
+    margin-bottom: 0;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.83rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  @media (max-width: 992px) {
+    #videoContainer { min-height: 300px; }
+    .stats-card h3 { font-size: 2.5rem; }
+    .action-buttons { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4 align-items-stretch">
+
+    <!-- ── Video Feed ───────────────────────────────── -->
+    <div class="col-lg-7">
+      <div class="card h-100">
+        <div class="card-header">
+          <span class="status-indicator status-inactive" id="statusIndicator"></span>
+          Live Detection Feed
+          <span class="feature-badge">2-Hand Support</span>
+        </div>
+        <div class="card-body text-center">
+          <div id="videoContainer">
+            <div id="spinner" class="spinner-border" role="status">
+              <span class="visually-hidden">Loading camera...</span>
+            </div>
+            <img id="video" class="img-fluid d-none" alt="video feed" />
+          </div>
+
+          <div class="hands-indicator" id="handsIndicator">
+            <span class="hand-icon">🖐️</span>
+            <span id="handsText">No hands detected</span>
+          </div>
+
+          <div class="help-text">
+            💡 <strong>Tips:</strong> Use 1 or 2 hands · Position clearly in frame · Hold each letter steady · Ensure good lighting for better accuracy
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Detection Panel ─────────────────────────── -->
+    <div class="col-lg-5">
+      <div class="card h-100">
+        <div class="card-header">Detection Results</div>
+        <div class="card-body">
+
+          <!-- Current Detection -->
+          <div class="mb-4">
+            <label class="form-label">🎯 Current Sign Detected</label>
+            <div id="detectedLabel">
+              <span id="letterDisplay">No sign detected</span>
+            </div>
+            <div class="confidence-display" id="confidenceDisplay"></div>
+          </div>
+
+          <!-- Detection Counter -->
+          <div class="mb-4">
+            <div class="stats-card">
+              <h3 id="detectionCount">0</h3>
+              <p>Total Detections</p>
+            </div>
+          </div>
+
+          <!-- Main buttons -->
+          <button id="startBtn" class="btn btn-primary w-100 mb-3" style="padding:1rem;font-size:1.05rem;font-weight:700;border-radius:12px;">
+            ▶️ Start Detection
+          </button>
+          <button id="stopBtn" class="btn btn-danger w-100 mb-3 d-none" style="padding:1rem;font-size:1.05rem;font-weight:700;border-radius:12px;">
+            ⏹️ Stop Detection
+          </button>
+
+          <!-- Action buttons -->
+          <div class="action-buttons">
+            <button id="resetBtn" class="btn btn-outline-secondary btn-action" disabled title="Reset counter">
+              🔄 Reset Count
+            </button>
+            <button id="speakBtn" class="btn btn-outline-success btn-action" disabled title="Speak detected letter">
+              🔊 Speak
+            </button>
+          </div>
+
+          <!-- Instructions -->
+          <div class="how-to-use">
+            <h6>📋 How to Use</h6>
+            <ul>
+              <li>Click "Start Detection" to begin</li>
+              <li>Show ASL letters with 1 or 2 hands</li>
+              <li>Hold each letter steady for recognition</li>
+              <li>System supports up to 2 hands simultaneously</li>
+              <li>Use "Reset Count" to start over</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+  const socket = io({
+    transports: ['websocket', 'polling'],
+    upgrade: true,
+    rememberUpgrade: true
+  });
+
+  function showCustomAlert(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show alert-custom`;
+    alertDiv.setAttribute('role', 'alert');
+    alertDiv.innerHTML = `
+      <strong>${type === 'success' ? '✅' : type === 'danger' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</strong> ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    document.body.appendChild(alertDiv);
+    setTimeout(() => {
+      alertDiv.classList.remove('show');
+      setTimeout(() => alertDiv.remove(), 200);
+    }, 4000);
+  }
+
+  const videoElement     = document.getElementById('video');
+  const spinner          = document.getElementById('spinner');
+  const startBtn         = document.getElementById('startBtn');
+  const stopBtn          = document.getElementById('stopBtn');
+  const letterDisplay    = document.getElementById('letterDisplay');
+  const confidenceDisplay = document.getElementById('confidenceDisplay');
+  const statusIndicator  = document.getElementById('statusIndicator');
+  const detectionCount   = document.getElementById('detectionCount');
+  const resetBtn         = document.getElementById('resetBtn');
+  const speakBtn         = document.getElementById('speakBtn');
+  const handsIndicator   = document.getElementById('handsIndicator');
+  const handsText        = document.getElementById('handsText');
+
+  let detectionActive = false;
+  let lastDetectedLabel = '';
+  let currentLabel = '';
+
+  socket.on('connect', () => showCustomAlert('Connected to server', 'success'));
+  socket.on('disconnect', () => {
+    showCustomAlert('Disconnected from server', 'warning');
+    if (detectionActive) resetUI();
+  });
+
+  socket.on('video_frame', (data) => {
+    if (data.image) {
+      videoElement.src = 'data:image/jpeg;base64,' + data.image;
+      if (!spinner.classList.contains('d-none')) {
+        spinner.classList.add('d-none');
+        videoElement.classList.remove('d-none');
+      }
+    }
+    updateDetectionUI(data);
+  });
+
+  socket.on('detection_started', (data) => showCustomAlert(data.message, 'success'));
+  socket.on('detection_stopped', (data) => { showCustomAlert(data.message, 'info'); resetUI(); });
+  socket.on('count_reset', () => showCustomAlert('Detection counter reset!', 'info'));
+  socket.on('error', (data) => showCustomAlert(data.message, 'danger'));
+
+  function updateDetectionUI(data) {
+    if (data.label && data.confidence) {
+      const confidence = (data.confidence * 100).toFixed(1);
+      currentLabel = data.label;
+      if (letterDisplay.textContent !== data.label) {
+        letterDisplay.textContent = data.label;
+        if (data.label !== lastDetectedLabel) {
+          lastDetectedLabel = data.label;
+          if (speakBtn.getAttribute('data-auto-speak') === 'true') speakLetter(data.label);
+        }
+      }
+      confidenceDisplay.textContent = `Confidence: ${confidence}%`;
+      confidenceDisplay.style.color = confidence > 85 ? 'var(--success)' : 'var(--warning)';
+    } else {
+      if (letterDisplay.textContent !== 'No sign detected') {
+        letterDisplay.textContent = 'No sign detected';
+        confidenceDisplay.textContent = '';
+        currentLabel = '';
+      }
+      lastDetectedLabel = '';
+    }
+    if (data.detection_count !== undefined) detectionCount.textContent = data.detection_count;
+    if (data.num_hands !== undefined) updateHandsIndicator(data.num_hands);
+  }
+
+  function updateHandsIndicator(n) {
+    if (n === 0) {
+      handsIndicator.classList.remove('active');
+      handsText.textContent = 'No hands detected';
+    } else {
+      handsIndicator.classList.add('active');
+      handsText.textContent = n === 1 ? '1 hand detected ✓' : n === 2 ? '2 hands detected ✓✓' : `${n} hands detected`;
+    }
+  }
+
+  function resetUI() {
+    detectionActive = false;
+    videoElement.src = '';
+    videoElement.classList.add('d-none');
+    spinner.classList.remove('d-none');
+    startBtn.classList.remove('d-none');
+    stopBtn.classList.add('d-none');
+    statusIndicator.classList.remove('status-active');
+    statusIndicator.classList.add('status-inactive');
+    resetBtn.disabled = true;
+    speakBtn.disabled = true;
+    letterDisplay.textContent = 'No sign detected';
+    confidenceDisplay.textContent = '';
+    handsIndicator.classList.remove('active');
+    handsText.textContent = 'No hands detected';
+  }
+
+  startBtn.addEventListener('click', () => {
+    videoElement.classList.remove('d-none');
+    spinner.classList.remove('d-none');
+    socket.emit('start_detection');
+    detectionActive = true;
+    startBtn.classList.add('d-none');
+    stopBtn.classList.remove('d-none');
+    statusIndicator.classList.remove('status-inactive');
+    statusIndicator.classList.add('status-active');
+    resetBtn.disabled = false;
+    speakBtn.disabled = false;
+  });
+
+  stopBtn.addEventListener('click', () => {
+    socket.emit('stop_detection');
+    resetUI();
+  });
+
+  resetBtn.addEventListener('click', () => {
+    socket.emit('reset_count');
+    detectionCount.textContent = '0';
+  });
+
+  function speakLetter(letter) {
+    if ('speechSynthesis' in window && letter) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(letter);
+      u.rate = 0.8; u.pitch = 1; u.volume = 1;
+      window.speechSynthesis.speak(u);
+    }
+  }
+
+  speakBtn.addEventListener('click', () => {
+    if (!currentLabel) { showCustomAlert('No letter detected to speak.', 'warning'); return; }
+    speakLetter(currentLabel);
+    showCustomAlert(`Speaking: ${currentLabel}`, 'info');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!detectionActive) return;
+    if (e.code === 'KeyR' && e.ctrlKey) { e.preventDefault(); resetBtn.click(); }
+    if (e.code === 'Space') { e.preventDefault(); speakBtn.click(); }
+  });
+
+  window.addEventListener('beforeunload', () => {
+    if (detectionActive) socket.emit('stop_detection');
+  });
+</script>
+{% endblock %}
